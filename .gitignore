@@ -1,0 +1,11 @@
+.venv/
+dados/
+dados_json/
+gastos_por_orgao_json/
+cron_log.log
+dados_despesas_anuais.json
+dados_despesas_medias_anuais.json
+grafico_interativo.html
+regressao_linear_graficos.html
+regressao_logistica_graficos.html
+regressao_multipla_graficos.html
