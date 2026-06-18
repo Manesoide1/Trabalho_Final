@@ -2,6 +2,8 @@
 dados/
 dados_json/
 gastos_por_orgao_json/
+Gráficos_PNG/
+.gitignore
 cron_log.log
 dados_despesas_anuais.json
 dados_despesas_medias_anuais.json

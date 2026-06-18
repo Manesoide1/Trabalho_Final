@@ -132,7 +132,7 @@ def prepara_df_para_KNN():
         df = pd.read_sql(query, conexao)
         print(f"Dados carregados! Total de registros: {len(df)}")
 
-        df = df.sample(n=int(df.shape[0] * 0.05), random_state=42) # Reduzindo a amostra para 10% para acelerar o processo
+        df = df.sample(n=max(int(df.shape[0] * 0.05), 1), random_state=42) # Reduzindo a amostra para 10% para acelerar o processo
 
         print(f"Dados selecionados! Total de registros: {len(df)}")
 
@@ -184,22 +184,28 @@ def prepara_df_para_KNN():
         limite_financeiro_minimo = 5000  # R$ 5.000,00
 
         df['anomalia'] = np.where(
+            
             # 1. Anomalia Dimensional Empenhado vs Liquidado (Usando Estatística Robusta + Relevância Material)
-            ((abs(dif_emp_liq - mediana_emp_liq) > desvio_robusto_emp_liq * multiplicador_sigma) & 
-            (abs(dif_emp_liq) > limite_financeiro_minimo)) |
+            #((abs(dif_emp_liq - mediana_emp_liq) > desvio_robusto_emp_liq * multiplicador_sigma) & 
+            #(abs(dif_emp_liq) > limite_financeiro_minimo)) |
             
             # 2. Anomalia Dimensional Liquidado vs Pago (Usando Estatística Robusta + Relevância Material)
-            ((abs(dif_liq_pag - mediana_liq_pag) > desvio_robusto_liq_pag * multiplicador_sigma) & 
-            (abs(dif_liq_pag) > limite_financeiro_minimo)) |
+            #((abs(dif_liq_pag - mediana_liq_pag) > desvio_robusto_liq_pag * multiplicador_sigma) & 
+            #(abs(dif_liq_pag) > limite_financeiro_minimo)) |
             
             # 3. Valor negativo enquanto o anterior é positivo (Regras lógicas mantidas)
-            ((df['valor_pago'] < 0) & (df['valor_liquidado'] >= 0)) |
-            ((df['valor_liquidado'] < 0) & (df['valor_empenhado'] >= 0)) |
+            #((df['valor_pago'] < 0) & (df['valor_liquidado'] >= 0)) |
+            #((df['valor_liquidado'] < 0) & (df['valor_empenhado'] >= 0)) |
             
             # 4. Valor negativo enquanto os demais são 0
-            ((df['valor_empenhado'] < 0) & (df['valor_liquidado'] == 0) & (df['valor_pago'] == 0)) |
-            ((df['valor_liquidado'] < 0) & (df['valor_empenhado'] == 0) & (df['valor_pago'] == 0)) |
-            ((df['valor_pago'] < 0) & (df['valor_liquidado'] == 0) & (df['valor_empenhado'] == 0)),
+            #((df['valor_empenhado'] < 0) & (df['valor_liquidado'] == 0) & (df['valor_pago'] == 0)) |
+            #((df['valor_liquidado'] < 0) & (df['valor_empenhado'] == 0) & (df['valor_pago'] == 0)) |
+            #((df['valor_pago'] < 0) & (df['valor_liquidado'] == 0) & (df['valor_empenhado'] == 0))
+
+            (df['valor_empenhado'] < df['valor_liquidado']) |
+            (df['valor_liquidado'] < df['valor_pago']) |
+            (df['valor_empenhado'] < df['valor_pago'])
+            ,
             1,
             0
         )
